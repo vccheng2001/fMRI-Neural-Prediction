@@ -51,18 +51,12 @@ def gaussian_pdf(xi, mean, sigma):
     exp = math.exp( (- (xi - mean) **2) / (2 * (sigma**2)))
     return (1/math.sqrt(2*math.pi*sigma**2)) * exp
 
+
 ''' Step 3: Calc likelihood that output belongs to a class yi given image X
     P(yi | x) = P(x | yi) P(yi) '''
 def calc_likelihoods(x, priors):
-    # iterate through feature matrix 
-    # P(yi | xi) = P(x | yi) P(yi)
-    for cin classes:
-        yi = label
-        x = data
-        for xi in X:
-            prod *= # P(xi | yi )  FILL IN 
-    prod *= priors[yi] # multiply by prior to get joint prob 
-    likelihoods[x][yi] = prod  # P(yi | xi) 
+    # TODO 
+
 
 ''' Step 4: for each row in training set, make class prediction '''
 def make_predictions(data, likelihood):
