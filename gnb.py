@@ -30,21 +30,12 @@ def gnb():
     priors = {k: (v/num_rows) for k, v in counts.items()}
 
 
-
     ''' Step 2: calc P(Xi|Yi) for each feature-class pair '''
-    means = {}
-    stdevs = {}
-    for yi, yi_rows in classes.items():
-
-        # each key into dict: yi
-        means[yi] = np.mean(yi_rows, axis = 0)
-        stdevs[yi] = np.std(yi_rows, axis = 0)
-        print(means[yi][0]) # for feature 1
+    ccp =  class_cond_probs(classes, num_features)
 
     
     ''' Step 3: calc P(Yi|X) for input image X  ''' 
     # P(Yi|X) = P(X1|Yi)*P(X2|Yi)*.....P(Xm|Yi) * P(Yi)
-    # TODO     
 
     ''' Step 4: choose class with max probability to make prediction '''
     preds = make_predictions(data, likelihood)
@@ -52,19 +43,37 @@ def gnb():
 
 
 ''' Step 2: calc P(Xi|Yi) for each feature-class pair '''
-def class_cond_probs(data, classes, features):
-    pass
+def class_cond_probs(classes, num_features):
+    means = {}
+    stdevs = {}
+    for yi, yi_rows in classes.items():
+        # each key into dict: yi
+        means[yi] = np.mean(yi_rows, axis = 0)
+        stdevs[yi] = np.std(yi_rows, axis = 0)
+
+    ccp = {}
+    for yi in classes:
+        for xj in range(num_features):
+            ccp[yi][xj] = gaussian_pdf(xj, means[yi][xj], stdevs[yi][xj])
+    return ccp
 
 ''' Gaussian pdf '''
-def gaussian_pdf(xi, mean, sigma):
-    exp = math.exp( (- (xi - mean) **2) / (2 * (sigma**2)))
-    return (1/math.sqrt(2*math.pi*sigma**2)) * exp
+def gaussian_pdf(xi, mean, stdev):
+    exp = math.exp( (- (xi - mean) **2) / (2 * (stdev**2)))
+    return (1/math.sqrt(2*math.pi*stdev**2)) * exp
 
 
 ''' Step 3: Calc likelihood that output belongs to a class yi given image X
     P(yi | x) = P(x | yi) P(yi) '''
-def calc_likelihoods(x, priors):
-    pass
+def calc_likelihoods(classes):
+    # P(yi | xi) = P(x | yi) P(yi)
+    for yi in classes:
+        yi = label
+        x = data
+        for xi in X:
+            prod *= # P(xi | yi )  FILL IN 
+    prod *= priors[yi] # multiply by prior to get joint prob 
+    likelihoods[x][yi] = prod  # P(yi | xi) 
 
 
 ''' Step 4: for each row in training set, make class prediction '''
