@@ -8,7 +8,7 @@ Given an fMRI image of 21764 voxels, predict the associated stimulus word/class
 '''
 
 def gnb():
-    data_and_labels = np.genfromtxt("tiny_data.csv", delimiter=",", skip_header=1, dtype='unicode')
+    data_and_labels = np.genfromtxt("sample_data.csv", delimiter=",", skip_header=1, dtype='unicode')
     
     # separate data, labels
     data   =   data_and_labels[:,:-1] # all except label column
@@ -20,18 +20,27 @@ def gnb():
     classes = {}
     for row in data_and_labels:
         label = row[-1]
-        data = row[:-1]
+        data = row[:-1].astype(np.float)
         if not classes.get(label): classes[label] = []
         classes[label].append(data)
     
 
     ''' Step 1: calc class priors P(Yi) for each class '''
-    classes_count = Counter(labels) # dict of counts for each class 
-    priors = {k: (v/num_rows) for k, v in classes_count.items()}
+    counts = Counter(labels) # dict of counts for each class 
+    priors = {k: (v/num_rows) for k, v in counts.items()}
+
 
 
     ''' Step 2: calc P(Xi|Yi) for each feature-class pair '''
-    # TODO 
+    means = {}
+    stdevs = {}
+    for yi, yi_rows in classes.items():
+
+        # each key into dict: yi
+        means[yi] = np.mean(yi_rows, axis = 0)
+        stdevs[yi] = np.std(yi_rows, axis = 0)
+        print(means[yi][0]) # for feature 1
+
     
     ''' Step 3: calc P(Yi|X) for input image X  ''' 
     # P(Yi|X) = P(X1|Yi)*P(X2|Yi)*.....P(Xm|Yi) * P(Yi)
@@ -55,7 +64,7 @@ def gaussian_pdf(xi, mean, sigma):
 ''' Step 3: Calc likelihood that output belongs to a class yi given image X
     P(yi | x) = P(x | yi) P(yi) '''
 def calc_likelihoods(x, priors):
-    # TODO 
+    pass
 
 
 ''' Step 4: for each row in training set, make class prediction '''
