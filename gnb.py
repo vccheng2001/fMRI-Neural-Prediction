@@ -11,12 +11,12 @@ Given an fMRI image of 21764 voxels, predict the associated stimulus word/class
 
 def main():
     # Train 
-    train_dataset  = np.genfromtxt("data/train_medium.csv", delimiter= ",", \
+    train_dataset  = np.genfromtxt("data/train_small.csv", delimiter= ",", \
                                     skip_header=1, dtype='unicode')
     (means, stdevs) = train_gnb(train_dataset)
 
     # Test
-    test_dataset  = np.genfromtxt("data/test_medium.csv", delimiter= ",", \
+    test_dataset  = np.genfromtxt("data/test_small.csv", delimiter= ",", \
                                     skip_header=1, dtype='unicode')
     test_gnb(test_dataset, means, stdevs)
 
@@ -71,17 +71,19 @@ def calc_likelihoods(data, classes, priors, means, stdevs):
     probs = {}
     num_features = data.shape[1]
 
-    # for each class
-    for yi in classes: 
-        # for each row in training data
-        for i in range(len(data)):
-            X = data[i]         # Row i of training set 
+
+    # for each row in training data
+    for i in range(len(data)):
+        X = data[i]         # Row i of training set 
+        # for each class
+        for yi in classes: 
             prod = priors[yi]   # P(yi)
             if not probs.get(i): probs[i] = {}
             for j in range(num_features):
                 # multiply by P(xi | yi) for each feature 
                 prod  *= gaussian_pdf(float(X[j]), means[yi][j], stdevs[yi][j])
             probs[i][yi] = prod 
+
     return probs
 
 ''' For each row in dataset, make class prediction '''
