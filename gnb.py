@@ -9,7 +9,7 @@ Gaussian Naive Bayes Classifier
 Given an fMRI image of 21764 voxels, predict the associated stimulus word/class
 '''
 
-name = "data_tb"
+name = "full
 def main():
     # Train 
     train_dataset  = np.genfromtxt(f"data/train_{name}.csv", delimiter= ",", \
@@ -82,12 +82,13 @@ def calc_likelihoods(data, classes, priors, means, stdevs):
         X = data[i]         # Row i of training set 
         # for each class
         for yi in classes: 
-            prod = priors[yi]   # P(yi)
+            logsum = np.log(priors[yi])  # P(yi)
             if not probs.get(i): probs[i] = {}
             for j in range(num_features):
                 # multiply by P(xi | yi) for each feature 
-                prod  = prod *  gaussian_pdf(float(X[j]), means[yi][j], stdevs[yi][j])
-            probs[i][yi] = prod 
+                gpdf = gaussian_pdf(float(X[j]), means[yi][j], stdevs[yi][j])
+                logsum +=  np.log(gpdf)
+            probs[i][yi] = logsum
 
     return probs
 
