@@ -9,14 +9,17 @@ Gaussian Naive Bayes Classifier
 Given an fMRI image of 21764 voxels, predict the associated stimulus word/class
 '''
 
+name = "data_tb"
 def main():
     # Train 
-    train_dataset  = np.genfromtxt("data/train_small.csv", delimiter= ",", \
+    train_dataset  = np.genfromtxt(f"data/train_{name}.csv", delimiter= ",", \
                                     skip_header=1, dtype='unicode')
     (means, stdevs) = train_gnb(train_dataset)
 
     # Test
-    test_dataset  = np.genfromtxt("data/test_small.csv", delimiter= ",", \
+
+    print('\n')
+    test_dataset  = np.genfromtxt(f"data/test_{name}.csv", delimiter= ",", \
                                     skip_header=1, dtype='unicode')
     test_gnb(test_dataset, means, stdevs)
 
@@ -29,7 +32,10 @@ def train_gnb(dataset):
     classes = split_data_by_class(dataset)
     # calc class priors P(Yi) for each class
     counts = Counter(labels) 
+    print(f"Train data shape: ", data.shape)
+    print(f"Train counts:", counts)
     priors = {k: (v/len(data)) for k, v in counts.items()}
+    print(f"Train Priors: {priors}")
     # calc mean, stdev for each feature 
     means, stdevs = calc_mean_stdev(classes)
     # calc P(Yi|X) for input image X 
@@ -64,14 +70,13 @@ def calc_mean_stdev(classes):
 ''' Gaussian probability distribution function '''
 def gaussian_pdf(xi, mean, stdev):
     exp = math.exp( (-1* (xi - mean) **2) / (2 * (stdev**2)))
-    return (1/math.sqrt(2*math.pi*stdev**2)) * exp
+    pdf = (1/(math.sqrt(2*math.pi*stdev**2))) * exp
+    return pdf 
 
 ''' Calculate likelihood that output belongs to a class yi given image X '''
 def calc_likelihoods(data, classes, priors, means, stdevs):
     probs = {}
-    num_features = data.shape[1]
-
-
+    num_rows, num_features = data.shape
     # for each row in training data
     for i in range(len(data)):
         X = data[i]         # Row i of training set 
@@ -81,24 +86,30 @@ def calc_likelihoods(data, classes, priors, means, stdevs):
             if not probs.get(i): probs[i] = {}
             for j in range(num_features):
                 # multiply by P(xi | yi) for each feature 
-                prod  *= gaussian_pdf(float(X[j]), means[yi][j], stdevs[yi][j])
+                prod  = prod *  gaussian_pdf(float(X[j]), means[yi][j], stdevs[yi][j])
             probs[i][yi] = prod 
 
     return probs
 
 ''' For each row in dataset, make class prediction '''
 def make_predictions(data, probs, train=True):
+    import itertools
+    d = {k: probs[k] for k in list(probs.keys())[:5]}
+
+    print(d)
+
+
     preds = []
     if train:
-        out = open('predictions/predictions_train.txt', 'w')
+        out = open(f'predictions/train_{name}.txt', 'w')
     else:
-        out = open('predictions/predictions_test.txt', 'w')
+        out = open(f'predictions/test_{name}.txt', 'w')
 
     for i in range(len(data)):
         # Select class that yields max likelihood
         pred = max(probs[i], key=probs[i].get)
         preds.append(pred)
-        out.write(str(preds[i]) + '\n')
+        out.write(str(pred) + '\n')
 
     out.close()
     return preds
@@ -122,7 +133,13 @@ def test_gnb(test_dataset, means, stdevs):
     test_labels =   test_dataset[:,-1]   # last column (ground truth y)
     test_classes = split_data_by_class(test_dataset)
     test_counts = Counter(test_labels) 
+    print(f"Test data shape: ", test_data.shape)
+
+    print(f"Test counts:", test_counts)
+
     test_priors = {k: (v/len(test_data)) for k, v in test_counts.items()}
+    print(f"Test Priors: {test_priors}")
+
     # group training data by class 
     test_probs = calc_likelihoods(test_data, test_classes, test_priors, means, stdevs)
     test_preds = make_predictions(test_data, test_probs, train=False)
