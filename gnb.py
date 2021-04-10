@@ -8,10 +8,8 @@ Gaussian Naive Bayes Classifier
 Given an fMRI image of 21764 voxels, predict the associated stimulus word/class
 '''
 
-name = "data"
-
 def main():
-    # number of voxels to select 
+    # number of voxels to select
     k = 2000
 
     # load train data 
