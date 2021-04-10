@@ -3,26 +3,27 @@ import pandas as pd
 import numpy as np
 import math
 from collections import Counter
+import sys 
 '''
 Gaussian Naive Bayes Classifier 
 Given an fMRI image of 21764 voxels, predict the associated stimulus word/class
 '''
 
 def main():
-    # number of voxels to select
-    k = 2000
+    # number of voxels to select (note: only use this for feature selection)
+    num_voxels = 2000
 
     # load train data 
-    train_dataset  = np.genfromtxt(f"data/train_{name}.csv", delimiter= ",", \
+    train_dataset  = np.genfromtxt(train_in, delimiter= ",", \
                                              skip_header=1, dtype='unicode')
-    (means, stdevs, priors, best_k_voxels) = train_gnb(train_dataset, k)
+    train_params = train_gnb(train_dataset, train_out, num_voxels)
     # Test
-    test_dataset  = np.genfromtxt(f"data/test_{name}.csv", delimiter= ",", \
-                                    skip_header=1, dtype='unicode')
-    test_gnb(test_dataset, means, stdevs, priors, best_k_voxels)
+    test_dataset  = np.genfromtxt(test_in, delimiter= ",", \
+                                            skip_header=1, dtype='unicode')
+    test_gnb(test_dataset, test_out, train_params)
    
         
-def train_gnb(dataset, k):
+def train_gnb(dataset, train_out, num_voxels):
     # separate data, labels from training set 
     data   =   dataset[:,:-1]    # feature values
     labels =   dataset[:,-1]     # last column (ground truth y)
@@ -39,7 +40,7 @@ def train_gnb(dataset, k):
     means, stdevs = calc_mean_stdev(classes, num_features) 
 
     # select top k voxels 
-    best_k_voxels = select_best_voxels(means, stdevs, k)    
+    best_k_voxels = select_best_voxels(means, stdevs, num_voxels)    
 
     # calc P(Yi|X) for input image X 
     probs = calc_likelihoods(data, classes, priors, means, stdevs, best_k_voxels)
@@ -81,9 +82,9 @@ def gaussian_pdf(xi, mean, stdev):
     return pdf 
 
 ''' Select top k features to use  '''
-def select_best_voxels(means, stdevs, k):
+def select_best_voxels(means, stdevs, num_voxels):
     diff = abs(means["tool"] - means["building"])
-    best_k_voxels = np.argpartition(diff, -k)[-k:]
+    best_k_voxels = np.argpartition(diff, -num_voxels)[-num_voxels:]
     return best_k_voxels
 
 ''' Calculate likelihood that output belongs to a class yi given image X '''
@@ -114,9 +115,9 @@ def make_predictions(data, probs, train=True):
 
     preds = []
     if train:
-        out = open(f'predictions/train_{name}2000.txt', 'w')
+        out = open(train_out, 'w')
     else:
-        out = open(f'predictions/test_{name}2000.txt', 'w')
+        out = open(test_out, 'w')
 
     for i in range(len(data)):
         # Select class that yields max likelihood
@@ -140,7 +141,10 @@ def eval_accuracy(preds, labels):
     return 1-err_rate
 
 ''' Test '''
-def test_gnb(test_dataset, means, stdevs, priors, best_k_voxels):
+def test_gnb(test_dataset, test_out, train_params):
+    # Unpack params from trianing 
+    (means, stdevs, priors, best_k_voxels) = train_params
+
     test_data   =   test_dataset[:,:-1]  # feature values 
     test_labels =   test_dataset[:,-1]   # last column (ground truth y)
     test_classes = split_data_by_class(test_dataset)
@@ -157,4 +161,5 @@ def test_gnb(test_dataset, means, stdevs, priors, best_k_voxels):
     return test_acc
 
 if __name__ == "__main__":
+    (program, train_in, test_in, train_out, test_out) = sys.argv
     main()
