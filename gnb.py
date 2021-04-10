@@ -7,11 +7,13 @@ import sys
 '''
 Gaussian Naive Bayes Classifier 
 Given an fMRI image of 21764 voxels, predict the associated stimulus word/class
+
+python3 gnb.py train_data.csv test_data.csv train_out.labels test_out.labels
 '''
 
 def main():
-    # number of voxels to select (note: only use this for feature selection)
-    num_voxels = 2000
+    # number of voxels to select 
+    num_voxels = 21764 # by default 21764 (all voxels)
 
     # load train data 
     train_dataset  = np.genfromtxt(train_in, delimiter= ",", \
