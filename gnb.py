@@ -8,9 +8,12 @@ Gaussian Naive Bayes Classifier
 Given an fMRI image of 21764 voxels, predict the associated stimulus word/class
 '''
 
-name = "data_tb"
+name = "data"
+
 def main():
-    k = 2000 # number of voxels to select 
+    # number of voxels to select 
+    k = 2000
+
     # load train data 
     train_dataset  = np.genfromtxt(f"data/train_{name}.csv", delimiter= ",", \
                                              skip_header=1, dtype='unicode')
@@ -23,22 +26,30 @@ def main():
         
 def train_gnb(dataset, k):
     # separate data, labels from training set 
-    data   =   dataset[:,:-1]  
-    labels =   dataset[:,-1]   # last column (ground truth y)
-    # group training data by class 
-    classes = split_data_by_class(dataset)
-    # calc class priors P(Yi) for each class
-    counts = Counter(labels) 
+    data   =   dataset[:,:-1]    # feature values
+    labels =   dataset[:,-1]     # last column (ground truth y)
+
+    # group training data by class
+    classes = split_data_by_class(dataset)  
+
+    # get class priors P(Yi) for each class 
+    counts = Counter(labels)                              
     priors = {k: (v/len(data)) for k, v in counts.items()}
+
     # calc mean, stdev for each feature 
     num_features = data.shape[1]
-    means, stdevs = calc_mean_stdev(classes, num_features)
-    best_k_voxels = select_best_voxels(means, stdevs, k)
+    means, stdevs = calc_mean_stdev(classes, num_features) 
+
+    # select top k voxels 
+    best_k_voxels = select_best_voxels(means, stdevs, k)    
+
     # calc P(Yi|X) for input image X 
     probs = calc_likelihoods(data, classes, priors, means, stdevs, best_k_voxels)
+
     # for each row, predict class yi
-    preds = make_predictions(data, probs)
+    preds = make_predictions(data, probs)            
     train_acc = eval_accuracy(preds, labels)
+
     print(f"Finished training, Train accuracy: {train_acc}")
     return (means, stdevs, priors, best_k_voxels)
 
@@ -132,14 +143,16 @@ def eval_accuracy(preds, labels):
 
 ''' Test '''
 def test_gnb(test_dataset, means, stdevs, priors, best_k_voxels):
-    # Separate data, labels from training set 
-    test_data   =   test_dataset[:,:-1]  
+    test_data   =   test_dataset[:,:-1]  # feature values 
     test_labels =   test_dataset[:,-1]   # last column (ground truth y)
     test_classes = split_data_by_class(test_dataset)
+    
     # Calculate likelihoods given input test images 
     test_probs = calc_likelihoods(test_data, test_classes, priors, means, stdevs, best_k_voxels)
+    
     # Make test predictions
     test_preds = make_predictions(test_data, test_probs, train=False)
+    
     # Test accuracy 
     test_acc = eval_accuracy(test_preds, test_labels)
     print(f"Finished testing, Test accuracy: {test_acc}")
