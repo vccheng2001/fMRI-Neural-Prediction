@@ -1,0 +1,16 @@
+meta = 
+    study: 'science'
+    subject: 'P1'
+    ntrials: 360
+    nvoxels: 21764
+        dimx: 51
+        dimy: 61
+        dimz: 23
+colToCoord: [21764x3 double]
+coordToCol: [51x61x23 double]
+
+Developed for CMU course 10-601 based on paper:
+
+Predicting Human Brain Activity Associated with the Meanings of Nouns,
+Tom M. Mitchell, Svetlana V. Shinkareva, Andrew Carlson, Kai-Min Chang, Vicente L. Malave, Robert A. Mason, Marcel Adam Just,
+Science, 320, pp. 1191-1195, May 30, 2008.

@@ -7,8 +7,10 @@ import imagesc as imagesc
 import scipy.io as c
 import pylab as pl                    
 
-# Visualize 2D fMRI brain slices using images from training data 
-# python3 visualize.py <path/to/data> <row_index> 
+'''
+Visualize 2D fMRI brain slices using images from training data 
+python3 visualize.py <path/to/data> <row_index> 
+'''
 def main():
     num_voxels = 21764
     nx, ny, nz = 51, 61, 23

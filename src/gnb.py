@@ -11,7 +11,10 @@ import imagesc as imagesc
 Gaussian Naive Bayes Classifier
 Given an fMRI image of 21764 voxels, predict the associated stimulus word/class
 
-python3 gnb.py train_data.csv test_data.csv train_out.labels test_out.labels
+How to run: python3 gnb.py train_data.csv test_data.csv train_out.labels test_out.labels
+
+Based on 'Predicting Human Brain Activity Associated with the Meaning of Nouns' by Tom Mitchell et al, 2008. 
+http://www.cs.cmu.edu/~tom/pubs/science2008.pdf
 '''
 
 def main():
@@ -172,6 +175,7 @@ def test_gnb(test_dataset, test_out, train_params):
     test_error = eval_accuracy(test_preds, test_labels)
     print(f"Finished testing, Test accuracy: {1-test_error}")
     return test_error
+
 
 if __name__ == "__main__":
     (program, train_in, test_in, train_out, test_out, metrics_out, num_voxels) = sys.argv
