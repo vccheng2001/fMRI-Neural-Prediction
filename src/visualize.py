@@ -16,7 +16,7 @@ def main():
     nx, ny, nz = 51, 61, 23
 
     # maps voxel index -> xyz coordinates
-    col_to_coord = np.genfromtxt("col_to_coord.csv", delimiter=",")
+    col_to_coord = np.genfromtxt("../meta/col_to_coord.csv", delimiter=",")
     # stores all voxel values
     data = np.genfromtxt(dataset, delimiter=",", skip_header=1,  dtype='unicode')
 
